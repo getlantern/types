@@ -12,12 +12,12 @@ var (
 	}
 )
 
-// InvalidEmailError indicates that an email address was not valid.
-type InvalidEmailError struct {
+// ErrInvalidEmail indicates that an email address was not valid.
+type ErrInvalidEmail struct {
 	email string
 }
 
-func (err InvalidEmailError) Error() string {
+func (err ErrInvalidEmail) Error() string {
 	return fmt.Sprintf("Invalid Email %s", err.email)
 }
 
@@ -38,15 +38,15 @@ type Email struct {
 //   - domains in domainsMap are remapped (for example 'googlemail.com' is
 //     remapped to 'gmail.com')
 //
-// If either the supplied email can't be parsed by net/mail, this function
-// returns an InvalidEmailError.
+// If the supplied email can't be parsed by net/mail, this function returns an
+// ErrInvalidEmail.
 //
 // TODO - at the moment, this does not handle quoted strings correctly, for
 // example "me@department"@company.com.
 func ParseEmail(email string) (Email, error) {
 	// Check supplied address
 	if !isValidEmail(email) {
-		return Email{}, &InvalidEmailError{email}
+		return Email{}, &ErrInvalidEmail{email}
 	}
 
 	// Split out username and domain
