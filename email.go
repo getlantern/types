@@ -14,12 +14,11 @@ var (
 
 // InvalidEmailError indicates that an email address was not valid.
 type InvalidEmailError struct {
-	orig       string
-	normalized string
+	email string
 }
 
 func (err InvalidEmailError) Error() string {
-	return fmt.Sprintf("Invalid Email. Orig: %s, Normalized: %s", err.orig, err.normalized)
+	return fmt.Sprintf("Invalid Email %s", err.email)
 }
 
 // Email encapsulates a normalized and validated email address, obtained using
@@ -39,12 +38,15 @@ type Email struct {
 //   - domains in domainsMap are remapped (for example 'googlemail.com' is
 //     remapped to 'gmail.com')
 //
-// If either the supplied or the normalized email can't be parsed by net/mail,
-// this function returns an InvalidEmailError.
+// If either the supplied email can't be parsed by net/mail, this function
+// returns an InvalidEmailError.
+//
+// TODO - at the moment, this does not handle quoted strings correctly, for
+// example "me@department"@company.com.
 func ParseEmail(email string) (Email, error) {
 	// Check supplied address
 	if !isValidEmail(email) {
-		return Email{}, &InvalidEmailError{email, email}
+		return Email{}, &InvalidEmailError{email}
 	}
 
 	// Split out username and domain
@@ -59,13 +61,7 @@ func ParseEmail(email string) (Email, error) {
 		domain = parts[1]
 	}
 
-	// Build and validate normalized email
-	normalized := username + "@" + domain
-	if !isValidEmail(normalized) {
-		return Email{}, &InvalidEmailError{email, normalized}
-	}
-
-	return Email{normalized}, nil
+	return Email{username + "@" + domain}, nil
 }
 
 func (e Email) String() string {

@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/getlantern/testify/assert"
@@ -30,4 +31,11 @@ func TestEmailEquality(t *testing.T) {
 		b := parsed[i]
 		assert.Equal(t, a, b, "All parsed emails should be equal")
 	}
+}
+
+func TestEmailInvalid(t *testing.T) {
+	bad := "invalidemailaddress"
+	_, err := ParseEmail(bad)
+	assert.Error(t, err)
+	assert.Equal(t, err.Error(), fmt.Sprintf("Invalid Email %s", bad))
 }
